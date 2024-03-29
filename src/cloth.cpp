@@ -32,7 +32,74 @@ Cloth::~Cloth() {
 
 void Cloth::buildGrid() {
   // TODO (Part 1): Build a grid of masses and springs.
+  
+  // Masses
+  for (int i = 0; i < num_height_points; i++) {
+    for (int j = 0; j < num_width_points; j++) {
+      // Masses need to be evenly spaced
+      double x = (width / num_width_points) * j;
+      double y = (height / num_height_points) * i;
 
+      bool pin = false;
+      // If the cloth's orientation is HORIZONTAL, y coordinate == 1 while varying positions over the xz plane
+      if (orientation == HORIZONTAL) {
+        for (int k = 0; k < pinned.size(); k++) {
+          if (j == pinned[k][0] && i == pinned[k][1]) {
+            pin = true;
+            break;
+          }
+        }
+        PointMass p = PointMass(Vector3D(x, 1, y), pin);
+        point_masses.push_back(p);
+      } else {
+        // Else: the orientation is VERTICAL, generate a small random offset between -1/1000 and 1/1000 for each point mass and use that as the z coordinate while varying positions over the xy plane.
+        for (int k = 0; k < pinned.size(); k++) {
+          if (j == pinned[k][0] && i == pinned[k][1]) {
+            pin = true;
+            break;
+          }
+        }
+        double z = (double)rand() / RAND_MAX * (1 / 1000) - (1 / 2000);
+        PointMass p = PointMass(Vector3D(x, y, z), pin);
+        point_masses.emplace_back(p);
+      }
+    }
+  }
+
+  // Springs (STRUCTURAL, SHEARING, or BENDING)
+  for (int i = 0; i < num_height_points; i++) { 
+    for (int j = 0; j < num_width_points; j++) {
+        // Structural == point mass and the point mass to its left + the point mass above it.
+        if (j > 0) {
+          Spring leftSpring = Spring(&point_masses[i * num_width_points + j], &point_masses[i * num_width_points + (j-1)], STRUCTURAL);
+          springs.emplace_back(leftSpring);
+        }
+        if (i+1 < num_height_points) {
+          Spring aboveSpring = Spring(&point_masses[i * num_width_points + j], &point_masses[(i+1) * num_width_points + j], STRUCTURAL);
+          springs.emplace_back(aboveSpring);
+        }
+
+        // Shearing constraints == point mass and the point mass to its diagonal upper left + the point mass to its diagonal upper right.
+        if (j > 0 && i > 0) {
+          Spring diagonalLeftSpring = Spring(&point_masses[i * num_width_points + j], &point_masses[(i-1) * num_width_points + (j-1)], SHEARING);
+          springs.emplace_back(diagonalLeftSpring);
+        }
+        if (j+1 < num_width_points && i > 0) {
+          Spring diagonalRightSpring = Spring(&point_masses[i * num_width_points + j], &point_masses[(i-1) * num_width_points + (j+1)], SHEARING);
+          springs.emplace_back(diagonalRightSpring);
+        }
+        
+        // Bending constraints == a point mass and the point mass two away to its left + the point mass two above it.
+        if (j-1 > 0) {
+          Spring twoLeftSpring = Spring(&point_masses[i * num_width_points + j], &point_masses[i * num_width_points + (j-2)], BENDING);
+          springs.emplace_back(twoLeftSpring);
+        }
+        if (i-1 > 0) {
+          Spring twoAboveSpring = Spring(&point_masses[i * num_width_points + j], &point_masses[(i-2) * num_width_points + j], BENDING);
+          springs.emplace_back(twoAboveSpring);
+        }
+    }
+  }
 }
 
 void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParameters *cp,
