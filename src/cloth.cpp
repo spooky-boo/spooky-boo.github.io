@@ -129,6 +129,7 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
     Vector3D p_b = s->pm_b->position;
     double l = s->rest_length; // rest length 
     Vector3D distance_vector = p_a - p_b;
+    distance_vector.normalize();
 
     // Bending constraint should be weaker than structural or shearing constraints
     if (cp->enable_bending_constraints) {
