@@ -111,11 +111,14 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
   // TODO (Part 2): Compute total force acting on each point mass.
 
   // Compute a total external force based on the external_accelerations and the mass
+  Vector3D external_force = Vector3D(0,0,0);
+  for (int i = 0; i < external_accelerations.size(); i++) {
+    external_force += mass * external_accelerations[i];
+  }
+
   for (int i = 0; i < point_masses.size(); i++) {
     PointMass* p = &point_masses[i];
-    for (int j = 0; j < external_accelerations.size(); j++) {
-      p->forces += mass * external_accelerations[j];
-    }
+    p->forces = external_force;
   }
 
   // Apply the spring correction forces
@@ -124,15 +127,18 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
     double ks = cp->ks; // spring constant
     Vector3D p_a = s->pm_a->position;
     Vector3D p_b = s->pm_b->position;
-    double l = s-> rest_length; // rest length 
+    double l = s->rest_length; // rest length 
+    Vector3D distance_vector = p_a - p_b;
 
     // Bending constraint should be weaker than structural or shearing constraints
     if (cp->enable_bending_constraints) {
-      s->pm_a->forces += (ks * 0.2) * ((p_a-p_b).norm() - l);
-      s->pm_b->forces += (ks * 0.2) * ((p_a-p_b).norm() - l);
+      Vector3D force_spring = distance_vector * (ks * 0.2) * ((p_a-p_b).norm() - l);
+      s->pm_a->forces -= force_spring;
+      s->pm_b->forces += force_spring;
     } else if (cp->enable_structural_constraints || cp->enable_shearing_constraints) {
-      s->pm_a->forces += (ks) * ((p_a-p_b).norm() - l);
-      s->pm_b->forces += (ks) * ((p_a-p_b).norm() - l);
+      Vector3D force_spring = distance_vector * (ks) * ((p_a-p_b).norm() - l);
+      s->pm_a->forces -= force_spring;
+      s->pm_b->forces += force_spring;
     }
   }
 
@@ -163,20 +169,20 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
   // the spring's length is at most 10% greater than its rest_length at the end of any time step.
   for (int i = 0; i < springs.size(); i++) {
     Spring* s = &springs[i];
-    Vector3D p_a = s->pm_a->position;
-    Vector3D p_b = s->pm_b->position;
-    double l = (p_a-p_b).norm() - (s->rest_length * 1.1); // spring's length is at most 10% greater than its rest_length at the end of any time step
-    bool adjust = !(l <= 0 || (s->pm_a->pinned && s->pm_b->pinned)); // no adjusting if both are pinned
+    Vector3D distance_vector = s->pm_a->position - s->pm_b->position;
+    double distance = distance_vector.norm();
+    distance_vector.normalize();
 
-    if (adjust) {
-      if (s->pm_a->pinned) {
-        p_b += l;
-      } else if (s->pm_b->pinned) {
-        p_a += l;
-      } else {
-        p_a += l / 2;
-        p_b += l / 2;
-      }
+    double correction = distance - s->rest_length - s->rest_length * 0.1; // spring's length is at most 10% greater than its rest_length at the end of any time step
+    if (correction > 0) {
+      if (s->pm_a->pinned == true && s->pm_b->pinned == false) {
+        s->pm_b->position += distance_vector * correction;
+      } else if (s->pm_a->pinned == false && s->pm_b->pinned == true) {
+        s->pm_a->position -= distance_vector * correction;
+      } else if (s->pm_a->pinned == false && s->pm_b->pinned == false) {
+        s->pm_a->position -= distance_vector * (correction / 2);
+        s->pm_b->position += distance_vector * (correction / 2);
+      } // else: do nothing if both are pinned
     }
   }
 }
