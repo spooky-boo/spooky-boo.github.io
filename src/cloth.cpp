@@ -89,7 +89,7 @@ void Cloth::buildGrid() {
         springs.emplace_back(diagonalRightSpring);
       }
       
-      // // Bending constraints == a point mass and the point mass two away to its left + the point mass two above it.
+      // Bending constraints == a point mass and the point mass two away to its left + the point mass two above it.
       if (j-1 > 0) {
         Spring twoLeftSpring = Spring(&point_masses[i * num_width_points + j], &point_masses[i * num_width_points + (j-2)], BENDING);
         springs.emplace_back(twoLeftSpring);
@@ -136,7 +136,13 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
       Vector3D force_spring = distance_vector * (ks * 0.2) * ((p_a-p_b).norm() - l);
       s->pm_a->forces -= force_spring;
       s->pm_b->forces += force_spring;
-    } else if (cp->enable_structural_constraints || cp->enable_shearing_constraints) {
+    } 
+    if (cp->enable_structural_constraints) {
+      Vector3D force_spring = distance_vector * (ks) * ((p_a-p_b).norm() - l);
+      s->pm_a->forces -= force_spring;
+      s->pm_b->forces += force_spring;
+    } 
+    if (cp->enable_shearing_constraints) {
       Vector3D force_spring = distance_vector * (ks) * ((p_a-p_b).norm() - l);
       s->pm_a->forces -= force_spring;
       s->pm_b->forces += force_spring;
@@ -155,6 +161,7 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
       p->position = currPos + (1 - d) * (currPos - p->last_position) + a_t * (delta_t * delta_t);
       p->last_position = currPos;
     }
+  
   }
 
   // TODO (Part 4): Handle self-collisions.
