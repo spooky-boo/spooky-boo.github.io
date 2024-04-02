@@ -14,7 +14,7 @@ void Sphere::collide(PointMass &pm) {
   if (tangent.norm() <= radius) {
     tangent.normalize();
     Vector3D correction = (tangent * radius + origin) - pm.last_position;
-    pm.last_position += ((1.0-friction)*correction);
+    pm.position = pm.last_position + ((1.0-friction)*correction);
   }
 
 }
