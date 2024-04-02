@@ -50,8 +50,8 @@ void Cloth::buildGrid() {
           }
         }
         PointMass p = PointMass(Vector3D(x, 1, y), pin);
-        point_masses.push_back(p);
-      } else {
+        point_masses.emplace_back(p);
+      } else if (orientation == VERTICAL) {
         // Else: the orientation is VERTICAL, generate a small random offset between -1/1000 and 1/1000 for each point mass and use that as the z coordinate while varying positions over the xy plane.
         for (int k = 0; k < pinned.size(); k++) {
           if (j == pinned[k][0] && i == pinned[k][1]) {
@@ -59,7 +59,7 @@ void Cloth::buildGrid() {
             break;
           }
         }
-        double z = (double)rand() / RAND_MAX * (1 / 1000) - (1 / 2000);
+        double z = (double)rand() / RAND_MAX * 1 / 2000 - 1 / 1000;
         PointMass p = PointMass(Vector3D(x, y, z), pin);
         point_masses.emplace_back(p);
       }
