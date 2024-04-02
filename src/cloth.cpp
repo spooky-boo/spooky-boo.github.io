@@ -59,7 +59,8 @@ void Cloth::buildGrid() {
             break;
           }
         }
-        double z = (double)rand() / RAND_MAX * 1 / 2000 - 1 / 1000;
+        //double z = (double)rand() / RAND_MAX * 1 / 1000 - 1 / 1000;
+        double z = ((double) rand() / RAND_MAX - 0.5) / 500;
         PointMass p = PointMass(Vector3D(x, y, z), pin);
         point_masses.emplace_back(p);
       }
