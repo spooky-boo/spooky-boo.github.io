@@ -149,6 +149,27 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
     }
   }
 
+  // Old code
+  // for (int i = 0; i < springs.size(); i++) {
+  //   Spring* s = &springs[i];
+  //   Vector3D a = s -> pm_a -> position;
+  //   Vector3D b = s -> pm_b -> position;
+  //   double restLength = s -> rest_length;
+  //   double springConstant = cp -> ks;
+  //   if (cp->enable_bending_constraints) {
+  //       s -> pm_a -> forces += (springConstant * 0.2) * ((a - b).norm() - restLength) * (b - a).unit();
+  //       s -> pm_b -> forces += (springConstant * 0.2) * ((a - b).norm() - restLength) * (a - b).unit();
+  //   }
+  //   if (cp -> enable_structural_constraints) {
+  //       s->pm_a->forces += springConstant * ((a - b).norm() - restLength) * (b - a).unit();
+  //       s->pm_b->forces += springConstant * ((a - b).norm() - restLength) * (a - b).unit();
+  //   }
+  //   if (cp -> enable_shearing_constraints) {
+  //       s->pm_a->forces += springConstant * ((a - b).norm() - restLength) * (b - a).unit();
+  //       s->pm_b->forces += springConstant * ((a - b).norm() - restLength) * (a - b).unit();
+  //   }
+  // }
+
   // TODO (Part 2): Use Verlet integration to compute new point mass positions
   for (int i = 0; i < point_masses.size(); i++) {
     PointMass* p = &point_masses[i];
@@ -207,18 +228,62 @@ void Cloth::build_spatial_map() {
   map.clear();
 
   // TODO (Part 4): Build a spatial map out of all of the point masses.
-
+  
+  for (int i = 0; i < point_masses.size(); i++) {
+    PointMass* pm = &point_masses[i];
+    float hash = hash_position(pm->position);
+    if (map.find(hash) == map.end()) {
+      map[hash] = new vector <PointMass*>();
+    }
+    map[hash]->push_back(pm);
+  }
 }
 
 void Cloth::self_collide(PointMass &pm, double simulation_steps) {
   // TODO (Part 4): Handle self-collision for a given point mass.
 
+  float key = hash_position(pm.position);
+  vector<PointMass*>* boxes = map[key];
+  Vector3D correction = Vector3D(0, 0, 0);
+  int num_corrections = 0;
+
+  for (PointMass *canditate_pm : *boxes) {
+      //not collide with itself
+      if (canditate_pm->position == pm.position) {
+          continue;
+      }
+      Vector3D curr_to_candidate = pm.position - canditate_pm->position;
+      double distance = curr_to_candidate.norm();
+      curr_to_candidate.normalize();
+      if (distance < 2 * thickness) {
+          num_corrections++;
+          correction += (2 * thickness - distance) * curr_to_candidate;
+      }
+  }
+
+  //average
+  if (num_corrections > 0) {
+      correction = correction / num_corrections / simulation_steps;
+      pm.position += correction;
+  }
 }
 
 float Cloth::hash_position(Vector3D pos) {
   // TODO (Part 4): Hash a 3D position into a unique float identifier that represents membership in some 3D box volume.
-
-  return 0.f; 
+  
+  // 3D position
+  double w = 3 * width / num_width_points;
+  double h = 3 * height / num_height_points;
+  double t = max(w, h);
+  
+  // Discrete 3D box coordinates
+  double x = (pos.x - fmod(pos.x, w))/w;
+  double y = (pos.y - fmod(pos.y, h))/h;
+  double z = (pos.z - fmod(pos.z, t))/t;
+  
+  float hash = x + (y * y) + (z * z * z);
+  return hash;
+  //return 0.f; 
 }
 
 ///////////////////////////////////////////////////////
