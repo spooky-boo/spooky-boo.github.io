@@ -1,0 +1,114 @@
+<html>
+	<head>
+	</head>
+	<body>
+		<h3>CS184 Final Project Proposal</h3>
+		<br><br>
+		<p>
+      Group Members: Anya Agarwal, Christy Quang, Janani Sriram, Tia Jain
+    </p>
+    <br><br>
+    <h4>Title, Summary and Team Members</h4>
+    <p>Spooky Boo!</p>
+    <p>
+      For our project, we will be making a spooky scene with multiple objects, both moving and stationary. 
+      We will use various textures and shaders to model these items’ material — for example, a wood texture for a table, 
+      or a thin fabric (i.e satin) texture for a ghost. We also intend to add environmental factors such as wind to make 
+      the ghost fabric move and flickering illumination within the pumpkin.
+    </p>
+    <br><br>
+    <h4>Problem Description</h4>
+    <p>
+      In previous homework assignments, we haven’t worked with both stationary and moving objects simultaneously. 
+      We want to combine what we learned in Homeworks 3 and 4 to generate a scene that supports static and dynamic objects, 
+      since that mimics scenes in the real world best.
+    </p>
+    <p>
+      It may be challenging to make our staged wind movement represent real world movement, such as if the ghost’s 
+      fabric moves with the correct speed. Another challenge is learning how to use Blender or Autodesk Maya to 3D 
+      model the different objects in the scene, such as the pumpkin or different cloth used for the ghost’s fabric.
+    </p>
+    <br><br>
+    <h4>Goals and Deliverables</h4>
+    <p>
+      To showcase our final result, we will record a video of our scene with all of the different functionalities displayed. 
+      This will include all of the moving parts, and how the shaders interact with light when the model is moving. The stationary
+      objects will also be hit with the light source, showing the details of the texture that we created. We can also potentially 
+      zoom in the camera on certain parts of the scene.
+    </p>
+    <p>
+      We will qualitatively view the elements in the scene and compare them to how they would appear in real life. For example, 
+      we will examine how realistic the texture of the pumpkin’s skin is. We can also check how smoothly the ghost’s cloth flutters 
+      in response to wind, and how smooth the metal of the chairs is. With the different types of illumination/lighting, we can measure
+      the timing differences in how the scene is generated. Since the scene has a multitude of objects and factors, this leaves room for 
+      the possibility of determining what tradeoffs are more important (i.e sacrificing visual detail for faster generation time).
+    </p>
+    <p>
+      In what ways can environmental factors like wind and light affect a scene?<br>
+      How can different textures interact with each other in one scene? Within one object, like a pumpkin, 
+      how would multiple textures interact? What do points of contact between textures look like (for example, 
+      the contact points between the wood of a stem and the smoothness of the skin)?<br>
+      In what ways do static and dynamic objects interact with each other in a scene? How do elements like 
+      lighting and shadows affect these interactions?
+    </p>
+    <p>
+      Our plan:<br>
+      We plan to create the shaders and textures needed for our scene. This will include wood, grass, 
+      fabric for the ghost, pumpkin skin, metal for some chairs, and more. The shaders, specifically the 
+      fabric and grass, will be able to still look realistic while moving.<br>
+      Our hope:<br>
+      Our aspirational plan is to have the environment make more of an impact on our scene. We could 
+      potentially have varying gusts of wind blowing in the scene or allow the user to interact with our 
+      scene by being able to change the wind gust speed. We could also make multiple textures interact — 
+      for example, the ghost brushing against the pumpkin skin by allowing the user to move the ghost or pumpkin.
+    </p>
+    <br><br>
+    <h4>Schedule</h4>
+    <p>
+      <b>Week 1 (4/2-4/7)</b><br>
+        Model: <br>
+      Various objects in scene (pumpkin, table, chair, candle, etc)<br>
+        Textures: <br>
+      Render static objects (we just want to get the pumpkin, wooden table, anything that is intended to be 
+          stationary to render individually, then all together in one scene)<br>
+      <b>Week 2 (4/8-4/14)</b><br>
+        Shaders: <br>
+      Render dynamic objects (now, we want to render moving objects on their own, ie. a ghost moving 
+      and a candle flickering, however, not concerning ourselves with how the dynamic objects affect other parts of the scene<br>
+      <b>Week 3 (4/15-4/21)</b><br>
+        Shaders:<br>
+        We believe that shaders may be complicated enough to require 2 weeks, so we are keeping this as a buffer week to finish that up from the previous week.<br>
+        We also intend to spend a lot of this week studying for the midterm on 4/22 this week so may not have as much time to get things done.<br>
+      <b>Week 4 (4/22-4/28)</b><br>
+        Make the scene cohesive and realistic<br>
+        Have static and dynamic objects interact<br>
+        For example, Flickering light should cause shadows and lighting changes on the pumpkin skin<br>
+    </p>
+    <h4>Resources</h4>
+    <p>
+      <b>Resources</b><br>
+        <ul>
+       <li> Grass texture: https://developer.nvidia.com/gpugems/gpugems/part-i-natural-effects/chapter-7-rendering-countless-blades-waving-grass</li> 
+        <li>Cloth/fabric shader: https://www.shadertoy.com/view/MldXWX</li>
+        <li>Wind shader: https://www.shadertoy.com/view/MdGBWG</li>
+        <li>Flickering candlelight shader: https://www.shadertoy.com/view/ltXyDM</li>
+        <li>How to create a wood texture in Blender: https://medium.com/@samuelsullins/make-this-easy-procedural-wood-material-in-blender-with-just-10-nodes-c94a3f8b54ad</li>
+        <li>How to create a wood texture in Blender (video): https://www.youtube.com/watch?v=Egd_BNAT3l8</li>
+          </ul>
+      <b>Platforms</b><br>
+        <ul>
+          <li>GLSL (Homework 4 Part 5: Shaders)</li>
+        </ul>
+    </p>
+	</body>
+	<script>
+		var links = document.body.getElementsByTagName("a")
+		var a = window.location.href.indexOf(".io")
+		var repo_name = window.location.href.substring(a+3)
+		for(var i = 0; i < links.length; i++){
+			var link = links[i]
+			var actual_name = link.href.substring(link.href.indexOf(".io")+4)
+			link.href = repo_name + actual_name
+		}
+	</script>
+</html>
