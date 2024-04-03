@@ -26,8 +26,23 @@ out vec4 out_color;
 
 void main() {
   // YOUR CODE HERE
+  vec3 n = normalize(v_normal.xyz);
+  vec3 u_light_dir = normalize(u_light_pos - v_position.xyz);
+  
+  float dotval = dot(n, u_light_dir);
+  float maxval = max(0.0, dotval);
+  float theta = 1.0;
+
+/*   if (dot(n, u_cam_pos) < 0.0) {
+    theta = -1.0;
+  } */
+
+  vec3 diffuse = u_light_intensity * maxval * u_color.xyz;
+
+  out_color = vec4(diffuse, 1.0);
+
   
   // (Placeholder code. You will want to replace it.)
-  out_color = (vec4(1, 1, 1, 0) + v_normal) / 2;
-  out_color.a = 1;
+  // out_color = (vec4(1, 1, 1, 0) + v_normal) / 2;
+  // out_color.a = 1;
 }
