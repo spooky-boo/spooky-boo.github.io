@@ -33,12 +33,11 @@ void main() {
   float maxval = max(0.0, dotval);
   float theta = 1.0;
 
-/*   if (dot(n, u_cam_pos) < 0.0) {
+  if (dot(n, u_cam_pos) < 0.0) {
     theta = -1.0;
-  } */
+  }
 
   vec3 diffuse = maxval * u_color.xyz * theta * normalize(u_light_intensity);
-
   out_color = vec4(diffuse, 1.0);
 
   
