@@ -37,7 +37,7 @@ void main() {
     theta = -1.0;
   } */
 
-  vec3 diffuse = u_light_intensity * maxval * u_color.xyz;
+  vec3 diffuse = maxval * u_color.xyz * theta * normalize(u_light_intensity);
 
   out_color = vec4(diffuse, 1.0);
 
