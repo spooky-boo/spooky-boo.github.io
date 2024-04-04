@@ -49,6 +49,9 @@ Below are images of running `./clothsim -f ../scene/pinned4.json` with the defau
 
 
 # Part 4
+### Changing spring constant (ks)
+
+### Changing density
 
 
 # Part 5
