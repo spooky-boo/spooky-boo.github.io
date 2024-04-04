@@ -21,7 +21,7 @@ out vec4 out_color;
 
 float h(vec2 uv) {
   // You may want to use this helper function...
-  return 0.0;
+  return texture(u_texture_2, uv).x;
 }
 
 void main() {
@@ -29,24 +29,21 @@ void main() {
 
   //bump
   mat3 tbn;
-  tbn[0] = v_tangent.xyz;
-  tbn[1] = cross(v_normal.xyz, v_tangent.xyz);
-  tbn[2] = v_normal.xyz;
+  tbn[0] = normalize(v_tangent.xyz);
+  tbn[1] = normalize(cross(v_normal.xyz, v_tangent.xyz));
+  tbn[2] = normalize(v_normal.xyz);
 
-  float w = u_texture_2_size.x;
-  float h = u_texture_2_size.y;
+  float width = u_texture_2_size.x;
+  float height = u_texture_2_size.y;
 
-  float h0 = texture(u_texture_2, v_uv).r;
-  vec2 v_uv1 = vec2((v_uv.x + 1.0)/w, v_uv.y);
-  float h1 = texture(u_texture_2, v_uv1).r;
-  vec2 v_uv2 = vec2(v_uv.x, (v_uv.y + 1.0)/h);
-  float h2 = texture(u_texture_2, v_uv2).r;
+  vec2 v_uv1 = vec2((v_uv.x + 1.0)/width, v_uv.y);
+  vec2 v_uv2 = vec2(v_uv.x, (v_uv.y + 1.0)/height);
 
-  float du = (h1 - h0) * u_normal_scaling * u_height_scaling;
-  float dv = (h2 - h0) * u_normal_scaling * u_height_scaling;
+  float du = (h(v_uv1) - h(v_uv)) * u_normal_scaling * u_height_scaling;
+  float dv = (h(v_uv2) - h(v_uv)) * u_normal_scaling * u_height_scaling;
 
-  vec3 no = vec3(-du, -dv, 1.0);
-  vec3 nd = tbn * no;
+  vec3 no = normalize(vec3(-du, -dv, 1.0));
+  vec3 nd = normalize(tbn * no);
 
 
   // START OF PHONG SHADER
