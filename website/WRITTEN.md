@@ -46,7 +46,14 @@ Below are images of running `./clothsim -f ../scene/pinned4.json` with the defau
 [insert pics]
 
 # Part 3
+## Task 1: Handling collisions with spheres
+In this task, we handle collisions with spheres by registering when a collision "occurs" (depends on sphere vs. plane) and then calculate a correction to the point mass's current position so that it is just outside the surface of the object being collided into. A collision occurs when the point mass has a distance to the center of the sphere less than its radius. If a collision occurs, we calculate the tangent point along the sphere where the collision would have occured and use that value to calculate the correction vector. When updating the point mass's position, we make sure to scale by `1 - friction` when multiplying by the correction vector. We also needed to update `Cloth::simulate` to check for collisions between every `PointMass` and `CollisionObject`.
 
+### Changing spring constant (ks)
+We can see through the images below that when we increase `ks`, this results in increasing the stiffness of the spring. The cloth becomes more rigid and there is more structure to the folds. The material also goes from looking like velvet/silk to a stiffer material. This makes sense because a stiff spring will resist the deformation from gravity. In contrast, at lower `ks` values, the cloth is more flexible because of a weaker spring, hence why it appears more "loose" and drapes easier.
+
+## Task 2: Handling collisions with planes
+In this task, we handle collisions with planes - for a plane, a collision occurs when the point mass has crossed the plane. We determine if a point had crossed the plane by checking if the dot product of the movement vector and the normal vector is negative. If so, we apply a correction which uses the tangent point at which the collision between the point mass and the plane would have occurred. We also needed to factor in `SURFACE_OFFSET` when multiplying by the normal vector. The correction vector is also similar to collisions with a sphere. Lastly, we also needed to update `Cloth::simulate` to check for collisions between every `PointMass` and `CollisionObject`.
 
 # Part 4
 Prior to this section, our cloth when colliding with itself would just clip through itself. To prevent this, we would need to implement that whenever the cloth fell on itself, it would fold. For each point mass, we need to check whether it is within some small number (`2 * thickness`) away from another point (not including itself). If it is too close, then we apply a correction/repulsive collision force (to maintain a minimum of `2 * thickness` distance away).
