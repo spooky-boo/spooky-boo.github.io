@@ -49,10 +49,26 @@ Below are images of running `./clothsim -f ../scene/pinned4.json` with the defau
 
 
 # Part 4
+Prior to this section, our cloth when colliding with itself would just clip through itself. To prevent this, we would need to implement that whenever the cloth fell on itself, it would fold. For each point mass, we need to check whether it is within some small number (`2 * thickness`) away from another point (not including itself). If it is too close, then we apply a correction/repulsive collision force (to maintain a minimum of `2 * thickness` distance away).
+
+## Task 1: Cloth::hash_position
+In this task, we implemented `Cloth::hash_position` which takes in a point mass's position and calculates its 3D box volume's index in our spatial hash table. The idea is to check within a point's 3D box volume instead of throughout the entire cloth. This was done by first calculating its 3D position `(w, h, t)` where `w = 3 * width / num_width_points`, `h = 3 * height / num_height_points`, and `t = max(w, h)`. We determined the 3D box coordinates by calculating `x = (pos.x - fmod(pos.x, w))/w`, `y = (pos.y - fmod(pos.y, h))/h`, and `z = (pos.z - fmod(pos.z, t))/t`. Afterwards, we transformed the 3D position to 1D through our hash expression.
+
+## Task 2: Cloth::build_spatial_map
+In this task, we constructed our spatial map by iterating through all `point_masses` in the cloth and calculated its `hash`. If there isn't already a `vector<PointMass *>` at that position, a new one is initialized and we also `push_back` the current point mass. 
+
+## Task 3: Cloth::self_collide
+In this task, we check each point mass to see whether the normalized distance between it and candidate point masses is less than `2 * thickness`. If a collision is detected, a correction vector is calculated based on the difference between the desired separation distance (`2 * thickness`) and the actual distance between the point masses.
+
+If any corrections were calculated, the average correction vector is computed and the position of the given point mass is adjusted by adding the correction vector to it.
+
+We also needed to update `Cloth::simulate` to build our spatial map and iterate through the point masses to call `self_collide` on them. 
+
 ### Changing spring constant (ks)
+When maintaining the default parameters (`density`, `damping`) and only modifying the spring constant, `ks`, we can see that at a lower `ks` value (`ks = 50 N/m`), the cloth has a bunch of folds, similar to a piece of aluminum foil or tissue paper. The ripples are very small and there are a bunch of self collisions, which makes sense intuitively since the spring constant is smaller. With a lower `ks`, the cloth is more malleable/flexible since it has less structure. We can compare this to `ks` being a greater value — when `ks = 50,000 N/m`, there are less folds ("bigger" folds compared to when `ks = 50 N/m`) and the strength of the cloth is greater due to the higher spring constant.
 
 ### Changing density
-
+When maintaining the default parameters (`ks`, `damping`) and only modifying the `density`, we can see that at a lower density (`density = 1 g/cm^2`), the cloth mimics gift wrapping paper in the way it folds (and its appearance). This makes sense because paper generally has low density and doesn't "bunch up" together. A lower density equates to a lower mass, hence why there is less force applied and less self collisions. In contrast, at a higher density, there is greater mass so a larger force is applied to the cloth, causing more self-collisions. This is depicted when `density = 50 g/cm^2`, where the cloth has more folds/ripples (less able to hold its structure) and appears "heavier" like a blanket.
 
 # Part 5
 
