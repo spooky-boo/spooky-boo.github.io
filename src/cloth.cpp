@@ -249,23 +249,23 @@ void Cloth::self_collide(PointMass &pm, double simulation_steps) {
   int num_corrections = 0;
 
   for (PointMass *canditate_pm : *boxes) {
-      //not collide with itself
-      if (canditate_pm->position == pm.position) {
-          continue;
-      }
-      Vector3D curr_to_candidate = pm.position - canditate_pm->position;
-      double distance = curr_to_candidate.norm();
-      curr_to_candidate.normalize();
-      if (distance < 2 * thickness) {
-          num_corrections++;
-          correction += (2 * thickness - distance) * curr_to_candidate;
-      }
+    //not collide with itself
+    if (canditate_pm->position == pm.position) {
+      continue;
+    }
+    Vector3D curr_to_candidate = pm.position - canditate_pm->position;
+    double distance = curr_to_candidate.norm();
+    curr_to_candidate.normalize();
+    if (distance < 2 * thickness) {
+      num_corrections++;
+      correction += (2 * thickness - distance) * curr_to_candidate;
+    }
   }
 
   //average
   if (num_corrections > 0) {
-      correction = correction / num_corrections / simulation_steps;
-      pm.position += correction;
+    correction = correction / num_corrections / simulation_steps;
+    pm.position += correction;
   }
 }
 
