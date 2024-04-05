@@ -78,4 +78,21 @@ When maintaining the default parameters (`density`, `damping`) and only modifyin
 When maintaining the default parameters (`ks`, `damping`) and only modifying the `density`, we can see that at a lower density (`density = 1 g/cm^2`), the cloth mimics gift wrapping paper in the way it folds (and its appearance). This makes sense because paper generally has low density and doesn't "bunch up" together. A lower density equates to a lower mass, hence why there is less force applied and less self collisions. In contrast, at a higher density, there is greater mass so a larger force is applied to the cloth, causing more self-collisions. This is depicted when `density = 50 g/cm^2`, where the cloth has more folds/ripples (less able to hold its structure) and appears "heavier" like a blanket.
 
 # Part 5
+For this part, we are creating various shaders using the language GLSL. Two shader types — vertex and fragment — work together to create the lighting and material effects that we want. The vertex shader deals with the position and transforms of the vertices themselves. After processing the vertex positions, it will save the final vertex position. The output of the vertex shader is inputted into the fragment shader, which essentially just calculates the final color to be outputted. It does this by reading the geometric attributes passed in, and doing the appropiate calculations to get the exact color to be outputted by that fragment.
 
+## Task 1: Diffuse Shading
+In this task, we implemented diffuse shading, which is related to Lambert's Law. To implement this, we used the equation given in lecture: we first found the dot product between the normal vector and the direction vector of the light. Then we ensured that it was a positive number, then multiplied it with the light intensity to get the final out color that we need.
+
+
+## Task 2: Blinn-Phong Shading
+The Blinn-Phong shading model essentially takes in three different aspects — ambient, diffuse, and specular — and adds them together to create the final shader. The ambient shading accounts for the constant color without any other factors involved. The diffuse shading accounts for the light and how it interacts with the curve of the object, but it is independent of the view direction. The specular shading accounts for view direction, adding in the intensity of the light based on that. Adding together these three components creates a very realistic shader, accounting for the different parts of the environment.
+
+In this task, we implemented these three parts to create the final Blinn-Phong shader. For the diffuse shader, we took the code from Task 1. For the ambient portion, we simply added the input color itself. For the specular portion, we wanted an effect similar to a mirror. Instead of using the regular normal vector, we used the bisector vector of the light and view vectors. This way, it would depend on the view direction as we want. Finally, we just added all three of these parts to get the final out color.
+
+## Task 3: Texture Mapping
+In this task, we wanted to create a shader that maps a given texture to the object. We implemented this taking advantage of the texture() function in GLSL that allows us to sample from the given texture at a certain location. Using this, we can get our final out color needed.
+
+## Task 4: Displacement and Bump Mapping
+
+## Task 5: Environment-mapped Reflections
+In this task, we want to create a shader that creates a direct reflection of the environment, like a mirror. We do this by finding the outgoing eye-ray, and then reflecting it exactly to get the incident ray. It is perfectly reflected so that we get an exact image of the environment, which we can then put in as the out color. 
