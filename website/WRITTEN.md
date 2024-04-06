@@ -1,5 +1,8 @@
 Website: https://cal-cs184-student.github.io/hw-webpages-sp24-christyquang/hw4/index.html
 
+# Overview
+TO DO
+
 # Part 1
 The goal of this section was to create a grid of masses and springs. First, we iterated through `num_height_points` and `num_width_points` via an inner loop to generate the point masses in row-major order, alongside the masses being evenly spaced. Based on the orientation (horizontal or vertical), we varied across the `xy` plane or the `xz` plane. If the point mass's `(x, y)` index is within the cloth's `pinned` vector, we set the point mass's `pinned` boolean to `true`. The `pinned` boolean indicates whether the point mass will remain stationary/pinned throughout the simulation.
 
@@ -78,36 +81,68 @@ When maintaining the default parameters (`density`, `damping`) and only modifyin
 When maintaining the default parameters (`ks`, `damping`) and only modifying the `density`, we can see that at a lower density (`density = 1 g/cm^2`), the cloth mimics gift wrapping paper in the way it folds (and its appearance). This makes sense because paper generally has low density and doesn't "bunch up" together. A lower density equates to a lower mass, hence why there is less force applied and less self collisions. In contrast, at a higher density, there is greater mass so a larger force is applied to the cloth, causing more self-collisions. This is depicted when `density = 50 g/cm^2`, where the cloth has more folds/ripples (less able to hold its structure) and appears "heavier" like a blanket.
 
 # Part 5
-For this part, we are creating various shaders using the language GLSL. Two shader types — vertex and fragment — work together to create the lighting and material effects that we want. The vertex shader deals with the position and transforms of the vertices themselves. After processing the vertex positions, it will save the final vertex position. The output of the vertex shader is inputted into the fragment shader, which essentially just calculates the final color to be outputted. It does this by reading the geometric attributes passed in, and doing the appropiate calculations to get the exact color to be outputted by that fragment.
+For this part, we are creating various shaders using the language GLSL. A shader program is used to make rendering more efficient/faster by transferring rendering workload from the CPU to the GPU (processes the vertex and fragments in the rasterization pipeline). Two shader types — vertex and fragment — work together to create the lighting and material effects that we want. The vertex shader deals with the position and transforms of the vertices themselves (from the 3D positions to 2D screen space based on the camera position and perspective). After processing the vertex positions, it will save the final vertex position. The output of the vertex shader is inputted into the fragment shader, which essentially just calculates the final color to be outputted after factoring in lighting, textures, and material properties. It does this by reading the geometric attributes passed in, and doing the appropiate calculations to get the exact color to be outputted by that fragment. The combination of these two shaders allows for the creation of realistic images in a computationally efficient approach.
 
 ## Task 1: Diffuse Shading
-In this task, we implemented diffuse shading, which is related to Lambert's Law. To implement this, we used the equation given in lecture: we first found the dot product between the normal vector and the direction vector of the light. Then we ensured that it was a positive number, then multiplied it with the light intensity to get the final out color that we need.
-
+In this task, we implemented diffuse shading, which is related to Lambert's Law. To implement this, we used the equation given in lecture: we first found the dot product between the normal vector and the direction vector of the light. We ensured that it was a positive number, then multiplied it with the light intensity to get the final out color that we need.
 
 ## Task 2: Blinn-Phong Shading
 The Blinn-Phong shading model essentially takes in three different aspects — ambient, diffuse, and specular — and adds them together to create the final shader. The ambient shading accounts for the constant color without any other factors involved. The diffuse shading accounts for the light and how it interacts with the curve of the object, but it is independent of the view direction. The specular shading accounts for view direction, adding in the intensity of the light based on that. Adding together these three components creates a very realistic shader, accounting for the different parts of the environment.
 
-In this task, we implemented these three parts to create the final Blinn-Phong shader. For the diffuse shader, we took the code from Task 1. For the ambient portion, we simply added the input color itself. For the specular portion, we wanted an effect similar to a mirror. Instead of using the regular normal vector, we used the bisector vector of the light and view vectors. This way, it would depend on the view direction as we want. Finally, we just added all three of these parts to get the final out color.
+In this task, we implemented these three parts to create the final Blinn-Phong shader. For the diffuse shader, we took the code from Task 1 of this part. For the ambient portion, we simply added the input color itself. For the specular portion, we wanted an effect similar to a mirror. Instead of using the regular normal vector, we used the bisector vector of the light and view vectors. This way, it would depend on the view direction as we want. Finally, we just added all three of these parts to get the final out color.
+
+- Ambinent: Flat lighting applied to the whole scene uniformly (constant)
+- Diffuse: Light in now factored in based on the distance to an object + angle the light falls upon --> matte appearance
+- Specular: Reflection of light on "glossy" surfaces and is dependent on the view
 
 [INSERT BLINN PHONG IMAGES]
 
 ## Task 3: Texture Mapping
 In this task, we wanted to create a shader that maps a given texture to the object. We implemented this taking advantage of the texture() function in GLSL that allows us to sample from the given texture at a certain location. Using this, we can get our final out color needed.
 
-Here is an image of the texture mapping shader using our own custom texture.
+Here is an image of the texture mapping shader using our the default Campanile texture and our own custom texture of poop.
+
 [INSERT TEXTURE PHOTO HERE]
 
 ## Task 4: Displacement and Bump Mapping
-In this task, we implemented shaders that account for bumps and displacement. For the bump mapping, we used a height map to calculate a new normal vector at a certain point, and used that vector for the Blinn-Phong shading instead of the original normal. To calculate this new normal, we look at how the height changes using the height map. We used the r component of the color to figure this out, and used the vector position as well as height and normal scalars to find the final normal vector. For displacement mapping on the other hand, we are also adjusting the actual position of the vertices to match the map, creating the displacement that we see on the object. So together, we have the bump created by the new normals that we calculated, as well as varying vertex positions to account for corresponding displacements. 
+In this task, we implemented shaders that account for bumps and displacement. For the bump mapping, we used a height map to calculate a new normal vector at a certain point, and used that vector for the Blinn-Phong shading instead of the original normal. To calculate this new normal, we look at how the height changes using the height map. We used the `r` component of the color to figure this out, and used the vector position as well as height and normal scalars to find the final normal vector. 
 
-By changing the sphere's mesh coarseness from 16 to 128, the sphere itself becomes a lot more smooth. When using the bump shader, the bumps are less apparent and look smoother overall. When using the displacement shader, the displacements are more uniform around the sphere. So the cloth lands relatively evenly on the sphere since the displacements still match the shape of the sphere. When the coarseness is back to 16, the bumps and displacements are a lot more apparent, with the displacements being a lot more uneven. This causes the cloth to fall a little unevenly on the displaced vertices of the sphere.
+Below are screenshots of running `./clothsim -f ../scene/sphere.json` with bump mapping, setting the normal to 5 and height to 1, using `texture3.png`.
 
+[INSERT PHOTOS OF BUMPS]
+
+On the other hand, for displacement mapping, we are also adjusting the actual position of the vertices to match the map, creating the displacement that we see on the object. All together, we have the bump created by the new normals that we calculated, as well as varying vertex positions to account for corresponding displacements. We did this by updating `Displacement.vert` and changed `gl_position` since it represents the screen space position.
+
+Below are screenshots of running `./clothsim -f ../scene/sphere.json` with displacement mapping, setting the normal to 100 and height to 0.05, using `texture3.png`.
+
+[INSERT PHOTOS OF DISPLACEMENTS]
+
+### Bump vs Displacement Mapping
 [INSERT PHOTOS OF BUMPS AND DISPLACEMENTS]
 
-## Task 5: Environment-mapped Reflections
-In this task, we want to create a shader that creates a direct reflection of the environment, like a mirror. We do this by finding the outgoing eye-ray, and then reflecting it exactly to get the incident ray. It is perfectly reflected so that we get an exact image of the environment, which we can then put in as the out color. 
+We can see that bump mapping still maintains the smoothness of the sphere since only the fragments are modified, creating the visual effect of bumps and indents. On the other hand, displacement mapping changes the location of each vertex, causing it to be more deformed and "spiky".
 
-Here are images of the mirror shader on the cloth and the sphere
+### Changing Coarseness
+[INSERT PHOTOS OF BUMPS AND DISPLACEMENTS]
+
+Above are screenshots of running `./clothsim -f ../scene/sphere.json` with bump and displacement mapping, setting the normal to 100 and height to 0.05, using `texture3.png`. The coarseness is altered by `-o 16 -a 16` and `-o 128 -a 128`.
+
+When changing the coarseness of the sphere, we can immediately see that displacement mapping impacts coarseness more than bump mapping does. With lower coarseness, there's less sampling points to change the vertices of, hence why there are jumps and the sphere appears more "spikey". At a higher resolution, the coarseness is higher and the surface texture of the sphere is more realistic. The spikes are also less pronounced because more vertices' positions are displaced, causing the overall sphere to apear more "round".
+
+With bump mapping, there is little difference in the sphere's shape because the positions of the vertices don't change.
+
+## Task 5: Environment-mapped Reflections
+In this task, we want to create a shader that creates a direct reflection of the environment, like a mirror. We do this by finding the outgoing eye-ray, `w_o` by subtracting the camera's position (`u_cam_pos`) from the fragment's position (`v_position`). Then, we calculate the incoming eye-ray, `w_i` with the formula `w_o - 2(w_o, n) * n`. Afterwards, we sample the texture for the incoming direction `w_i` calculated.
+
 [INSERT MIRROR PHOTOS HERE]
 
 ## Extra Credit: Custom Shader
+In preparation for our final project, we wanted to get experience with building our custom shader. We intended to simulate the appearance of water with random darker dots on the surface (i.e static on an old TV screen) and the final output is similar to that.
+
+To first generate the random dots, we searched for a random function in GLSL but we couldn't find one, hence why we created our own random number generator based off of this source (http://www.science-and-fiction.org/rendering/noise.html) and changed the numbers. The function returns a random number between 0 and 1. 
+
+If the random number is < 0.5, we set all the `k_coefficients` to `0.4`. Otherwise, we set all the `k_coefficients` to `0.9`. The shader calculates the dots by multiplying the normal vector `v_normal.xyz` with the coefficients. This adjusts the darkness of the dots based on the surface normal.
+
+To create the blue color of water, we experiment with different RGB values and added that to our vector of dots. We attempted to create the transparent/translucence appearance of water via `vec4 transparent_water = vec4(water_color, 0.5)` which semi-worked. This was done by combining the water color with an alpha value, resulting in partial transparency.
+
+The shader is "holographic" on the underside of the cloth while the sphere is a combination of light blue, dark blue, pink, and white. The top of the cloth is more translucent, where the screenshot of the cloth on the sphere gives off the illusion of the ball not being present. Overall, the shader mimics a glossy and thin sheet of holographic paper on the underside, while resembling a shiny jellyfish body from the side view to me.
