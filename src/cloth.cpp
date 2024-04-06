@@ -187,7 +187,11 @@ void Cloth::simulate(double frames_per_sec, double simulation_steps, ClothParame
   }
 
   // TODO (Part 4): Handle self-collisions.
-
+  build_spatial_map();
+  for (int i = 0; i < point_masses.size(); i++) {
+    PointMass* pm = &point_masses[i];
+    self_collide(*pm, simulation_steps);
+  }
 
   // TODO (Part 3): Handle collisions with other primitives.
   for (PointMass &pm : point_masses) {
