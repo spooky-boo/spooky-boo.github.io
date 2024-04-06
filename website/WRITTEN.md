@@ -89,10 +89,25 @@ The Blinn-Phong shading model essentially takes in three different aspects — a
 
 In this task, we implemented these three parts to create the final Blinn-Phong shader. For the diffuse shader, we took the code from Task 1. For the ambient portion, we simply added the input color itself. For the specular portion, we wanted an effect similar to a mirror. Instead of using the regular normal vector, we used the bisector vector of the light and view vectors. This way, it would depend on the view direction as we want. Finally, we just added all three of these parts to get the final out color.
 
+[INSERT BLINN PHONG IMAGES]
+
 ## Task 3: Texture Mapping
 In this task, we wanted to create a shader that maps a given texture to the object. We implemented this taking advantage of the texture() function in GLSL that allows us to sample from the given texture at a certain location. Using this, we can get our final out color needed.
 
+Here is an image of the texture mapping shader using our own custom texture.
+[INSERT TEXTURE PHOTO HERE]
+
 ## Task 4: Displacement and Bump Mapping
+In this task, we implemented shaders that account for bumps and displacement. For the bump mapping, we used a height map to calculate a new normal vector at a certain point, and used that vector for the Blinn-Phong shading instead of the original normal. To calculate this new normal, we look at how the height changes using the height map. We used the r component of the color to figure this out, and used the vector position as well as height and normal scalars to find the final normal vector. For displacement mapping on the other hand, we are also adjusting the actual position of the vertices to match the map, creating the displacement that we see on the object. So together, we have the bump created by the new normals that we calculated, as well as varying vertex positions to account for corresponding displacements. 
+
+By changing the sphere's mesh coarseness from 16 to 128, the sphere itself becomes a lot more smooth. When using the bump shader, the bumps are less apparent and look smoother overall. When using the displacement shader, the displacements are more uniform around the sphere. So the cloth lands relatively evenly on the sphere since the displacements still match the shape of the sphere. When the coarseness is back to 16, the bumps and displacements are a lot more apparent, with the displacements being a lot more uneven. This causes the cloth to fall a little unevenly on the displaced vertices of the sphere.
+
+[INSERT PHOTOS OF BUMPS AND DISPLACEMENTS]
 
 ## Task 5: Environment-mapped Reflections
 In this task, we want to create a shader that creates a direct reflection of the environment, like a mirror. We do this by finding the outgoing eye-ray, and then reflecting it exactly to get the incident ray. It is perfectly reflected so that we get an exact image of the environment, which we can then put in as the out color. 
+
+Here are images of the mirror shader on the cloth and the sphere
+[INSERT MIRROR PHOTOS HERE]
+
+## Extra Credit: Custom Shader
